@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Richard Marriott — PR Agent Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{--blk:#080808;--wh:#f5f2ec;--gd:#c4a97d;--gdl:#dfc9a0;--g1:#0f0f0f;--dim:#666;--lt:#999;--gr:#4caf50;--rd:#c0392b;}
+body{background:var(--blk);color:var(--wh);font-family:'DM Sans',sans-serif;font-weight:300;}
+
+/* API KEY SETUP */
+.setup-overlay{position:fixed;inset:0;background:rgba(8,8,8,.97);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px;}
+.setup-box{background:#0f0f0f;border:1px solid rgba(196,169,125,.2);padding:32px 36px;max-width:500px;width:100%;}
+.setup-title{font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.18em;color:var(--gd);margin-bottom:6px;}
+.setup-sub{font-size:.76rem;color:var(--dim);margin-bottom:24px;line-height:1.7;}
+.setup-label{font-family:'Space Mono',monospace;font-size:.54rem;color:var(--lt);letter-spacing:.12em;display:block;margin-bottom:6px;}
+.setup-input{width:100%;background:#080808;border:1px solid #2a2a2a;color:var(--wh);padding:10px 12px;font-family:'Space Mono',monospace;font-size:.68rem;outline:none;margin-bottom:16px;}
+.setup-input:focus{border-color:var(--gd);}
+.setup-btn{background:var(--gd);color:#000;border:none;padding:11px 24px;font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.14em;cursor:pointer;width:100%;}
+.setup-btn:hover{background:var(--gdl);}
+.setup-note{font-size:.66rem;color:var(--dim);margin-top:12px;line-height:1.7;}
+.setup-note a{color:var(--gd);}
+
+/* HEADER */
+.header{background:var(--g1);border-bottom:1px solid rgba(196,169,125,.1);padding:13px 22px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.htitle{font-family:'Space Mono',monospace;font-size:.64rem;letter-spacing:.16em;color:var(--gd);}
+.hsub{font-size:.62rem;color:var(--dim);margin-top:2px;}
+.hright{display:flex;align-items:center;gap:10px;}
+.status{font-family:'Space Mono',monospace;font-size:.5rem;display:flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid #1a1a1a;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--gr);}
+.change-key{font-family:'Space Mono',monospace;font-size:.5rem;color:var(--dim);background:transparent;border:1px solid #222;padding:4px 8px;cursor:pointer;}
+.change-key:hover{border-color:var(--gd);color:var(--gd);}
+
+/* LAYOUT */
+.main{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 50px);}
+.panel{border-right:1px solid #111;display:flex;flex-direction:column;overflow:hidden;}
+.ph{padding:12px 18px;background:#0a0a0a;border-bottom:1px solid #111;flex-shrink:0;}
+.plabel{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.14em;margin-bottom:2px;}
+.ptitle{font-size:.86rem;font-weight:500;color:var(--wh);}
+.pb{flex:1;overflow-y:auto;padding:12px 16px;}
+
+/* BUTTONS */
+.slabel{font-family:'Space Mono',monospace;font-size:.48rem;color:var(--dim);letter-spacing:.12em;margin:10px 0 5px;text-transform:uppercase;}
+.qbtns{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px;}
+.qbtn{font-family:'Space Mono',monospace;font-size:.49rem;border:1px solid #1e1e1e;background:#080808;color:var(--lt);padding:5px 8px;cursor:pointer;transition:all .15s;text-align:left;line-height:1.4;}
+.qbtn:hover{border-color:var(--gd);color:var(--gd);}
+.qbtn.g{border-color:#152015;color:var(--gr);}
+.qbtn.g:hover{border-color:var(--gr);background:#040f04;}
+
+/* INPUT */
+.prow{display:flex;gap:4px;margin-bottom:10px;}
+textarea{flex:1;background:#050505;border:1px solid #181818;color:var(--wh);padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:.7rem;resize:none;height:56px;outline:none;}
+textarea:focus{border-color:var(--gd);}
+.rbtn{background:var(--gd);color:#000;border:none;padding:0 13px;font-family:'Space Mono',monospace;font-size:.5rem;cursor:pointer;white-space:nowrap;align-self:stretch;}
+.rbtn:hover{background:var(--gdl);}
+.rbtn.g{background:var(--gr);}
+.rbtn.g:hover{background:#66bb6a;}
+
+/* OUTPUT */
+.loading{display:none;padding:14px;text-align:center;font-family:'Space Mono',monospace;font-size:.5rem;color:var(--gd);}
+.loading.show{display:block;}
+.output{display:none;background:#030303;border:1px solid #111;padding:10px 12px;font-size:.7rem;color:#bbb;line-height:1.8;white-space:pre-wrap;font-family:'DM Sans',sans-serif;max-height:260px;overflow-y:auto;margin-bottom:6px;}
+.output.show{display:block;}
+.oacts{display:none;gap:3px;margin-bottom:10px;flex-wrap:wrap;}
+.oacts.show{display:flex;}
+.abtn{font-family:'Space Mono',monospace;font-size:.48rem;border:1px solid #1e1e1e;background:transparent;color:var(--dim);padding:4px 9px;cursor:pointer;transition:all .15s;}
+.abtn:hover{border-color:var(--gd);color:var(--gd);}
+.abtn.p{background:var(--gd);color:#000;border-color:var(--gd);}
+.abtn.p:hover{background:var(--gdl);}
+.abtn.pg{background:var(--gr);color:#000;border-color:var(--gr);}
+.abtn.pg:hover{background:#66bb6a;}
+
+/* EMAIL QUEUE */
+.eq{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;}
+.eq-empty{font-size:.66rem;color:var(--dim);font-style:italic;padding:5px 0;}
+.eitem{background:#080808;border:1px solid #111;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:6px;}
+.einfo{min-width:0;flex:1;}
+.eto{font-size:.68rem;color:var(--wh);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.esub{font-family:'Space Mono',monospace;font-size:.46rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.egmail{font-family:'Space Mono',monospace;font-size:.46rem;padding:4px 8px;background:var(--gd);color:#000;border:none;text-decoration:none;display:inline-block;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.egmail:hover{background:var(--gdl);}
+.egmail.sent{background:#111;color:#333;pointer-events:none;}
+
+/* LOG */
+.logbox{font-family:'Space Mono',monospace;font-size:.48rem;color:var(--dim);line-height:2;max-height:70px;overflow-y:auto;background:#030303;padding:6px 8px;border:1px solid #0e0e0e;}
+.log-ok{color:var(--gr);}
+.log-err{color:var(--rd);}
+
+@media(max-width:700px){.main{grid-template-columns:1fr;height:auto;}.panel{min-height:50vh;}}
+</style>
+</head>
+<body>
+
+<!-- API KEY SETUP SCREEN -->
+<div class="setup-overlay" id="setup">
+  <div class="setup-box">
+    <div class="setup-title">RICHARD MARRIOTT — PR AGENT HUB</div>
+    <div class="setup-sub">Enter your Anthropic API key to activate the AI agents. Your key is stored only in this browser session and never sent anywhere except Anthropic's API.</div>
+    <label class="setup-label">ANTHROPIC API KEY</label>
+    <input class="setup-input" type="password" id="key-input" placeholder="sk-ant-api03-...">
+    <button class="setup-btn" onclick="saveKey()">ACTIVATE AGENTS →</button>
+    <div class="setup-note">
+      Get your API key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a><br>
+      Emails open in Gmail pre-filled — attach Z-Card PDF and click Send.
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <div>
+    <div class="htitle">RICHARD MARRIOTT — PR AGENT HUB</div>
+    <div class="hsub">Agent 1: PR & Outreach &nbsp;·&nbsp; Agent 2: Agency Discovery</div>
+  </div>
+  <div class="hright">
+    <span class="status"><span class="dot"></span>AI Active</span>
+    <button class="change-key" onclick="changeKey()">Change Key</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- AGENT 1 -->
+<div class="panel">
+  <div class="ph">
+    <div class="plabel" style="color:var(--gd)">AGENT 1 — PR & OUTREACH</div>
+    <div class="ptitle">Generate &amp; Send Emails</div>
+  </div>
+  <div class="pb">
+    <div class="slabel">Quick Actions</div>
+    <div class="qbtns">
+      <button class="qbtn" onclick="run('a1',P.a1_fu)">📧 Tier 1 Follow-Ups</button>
+      <button class="qbtn" onclick="run('a1',P.a1_t2)">📧 Tier 2 Agencies</button>
+      <button class="qbtn" onclick="run('a1',P.a1_cd)">🎬 Casting Directors</button>
+      <button class="qbtn" onclick="run('a1',P.a1_aa)">🏢 Ad Agencies</button>
+      <button class="qbtn" onclick="run('a1',P.a1_pr)">📰 Press Release</button>
+      <button class="qbtn" onclick="run('a1',P.a1_li)">💼 LinkedIn Posts</button>
+      <button class="qbtn" onclick="run('a1',P.a1_ig)">📸 Instagram Captions</button>
+      <button class="qbtn" onclick="run('a1',P.a1_plan)">📅 4-Week PR Plan</button>
+    </div>
+    <div class="slabel">Custom Request</div>
+    <div class="prow">
+      <textarea id="a1-in" placeholder="E.g. Write a pitch to Saga Magazine..."></textarea>
+      <button class="rbtn" onclick="runCustom('a1')">RUN</button>
+    </div>
+    <div class="loading" id="a1-load"><span id="a1-dots">Agent thinking</span></div>
+    <div class="output" id="a1-out"></div>
+    <div class="oacts" id="a1-acts">
+      <button class="abtn p" onclick="gmailAll('a1')">↗ OPEN ALL IN GMAIL</button>
+      <button class="abtn" onclick="copyOut('a1')">COPY</button>
+      <button class="abtn" onclick="clearA('a1')">CLEAR</button>
+    </div>
+    <div class="slabel">Email Queue</div>
+    <div class="eq" id="a1-eq"><div class="eq-empty">Run an action to generate emails</div></div>
+    <div class="slabel">Log</div>
+    <div class="logbox" id="a1-log"><span class="log-ok">Ready — click any action above</span></div>
+  </div>
+</div>
+
+<!-- AGENT 2 -->
+<div class="panel">
+  <div class="ph">
+    <div class="plabel" style="color:var(--gr)">AGENT 2 — AGENCY DISCOVERY</div>
+    <div class="ptitle">Find &amp; Reach Out</div>
+  </div>
+  <div class="pb">
+    <div class="slabel">Quick Actions</div>
+    <div class="qbtns">
+      <button class="qbtn g" onclick="run('a2',P.a2_new)">🔍 Find New UK Agencies</button>
+      <button class="qbtn g" onclick="run('a2',P.a2_cd)">🎬 Find Casting Directors</button>
+      <button class="qbtn g" onclick="run('a2',P.a2_brands)">🛍 Find Brand Contacts</button>
+      <button class="qbtn g" onclick="run('a2',P.a2_intl)">🌍 International Agencies</button>
+      <button class="qbtn g" onclick="run('a2',P.a2_market)">📈 Market Intelligence</button>
+      <button class="qbtn g" onclick="run('a2',P.a2_adagencies)">🏢 Find Ad Agencies</button>
+    </div>
+    <div class="slabel">Custom Search</div>
+    <div class="prow">
+      <textarea id="a2-in" placeholder="E.g. Find mature male model agencies in Manchester..."></textarea>
+      <button class="rbtn g" onclick="runCustom('a2')">SEARCH</button>
+    </div>
+    <div class="loading" id="a2-load"><span id="a2-dots">Agent searching</span></div>
+    <div class="output" id="a2-out"></div>
+    <div class="oacts" id="a2-acts">
+      <button class="abtn pg" onclick="gmailAll('a2')">↗ OPEN ALL IN GMAIL</button>
+      <button class="abtn" onclick="copyOut('a2')">COPY</button>
+      <button class="abtn" onclick="clearA('a2')">CLEAR</button>
+    </div>
+    <div class="slabel">Email Queue</div>
+    <div class="eq" id="a2-eq"><div class="eq-empty">Run a discovery action</div></div>
+    <div class="slabel">Log</div>
+    <div class="logbox" id="a2-log"><span class="log-ok">Ready — click any action above</span></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+var CONTEXT = "You are a PR agent with 20+ years experience working with Richard Marriott, a 53-year-old distinguished silver male model in London. Silver hair, brown eyes, 5ft 11/180cm, chest 44\"/112cm, waist 34\"/87cm, suit 44R. 23-image portfolio: https://richardmarriott-model.netlify.app. Email: rickmarriott569@gmail.com. Phone: +44 7535 602878. Already submitted to: MOT Models, Grey Models, Ugly Models, Models of Diversity, Sandra Reynolds, Select, Models 1, AMCK. When writing multiple emails separate each with ---EMAIL--- and format each as:\nTO: email@address.com\nSUBJECT: subject line\nBODY:\n[email body]\n\nSign off every email: Best regards,\nRichard Marriott\nrickmarriott569@gmail.com\n+44 7535 602878\nPortfolio: https://richardmarriott-model.netlify.app";
+
+var P = {
+  a1_fu:"Draft 5 follow-up emails (7 days after submission on 10 May 2026) to: MOT Models (agency@motmodel.com), Grey Models (feed@greymodelagency.com), Ugly Models (info@ugly.org), Silverfox Models (info@silverfoxmodels.co.uk), Models of Diversity (info@modelsofdiversity.org). Warm, professional, brief.",
+  a1_t2:"Draft 4 first-submission emails to Tier 2 agencies: Select Model Management (men@selectmodel.com), Models 1 (info@models1.co.uk), AMCK Models (info@amckmodels.com), Sandra Reynolds Classic Male (bookings@sandrareynolds.co.uk). Personalise each to the specific agency.",
+  a1_cd:"Draft 4 outreach emails to UK casting directors: Gail Stevens Casting (office@gailstevenscasting.com), Tree Petts Casting (casting@treepetts.co.uk), CDG (info@thecdg.co.uk), Quite Great Casting (casting@quitegreat.co.uk). Position Richard for TV commercial and print casting.",
+  a1_aa:"Draft 4 emails to ad agencies: Ogilvy UK (laura.vipond@ogilvy.com), AMV BBDO (tv@amvbbdo.com), Grey London (london@grey.com), Saga Group (advertising@saga.co.uk). Brief, confident, mature male campaign focus.",
+  a1_pr:"Write a press release about Richard Marriott (53) launching a modelling career in London. Inspiring story angle, fastest growing market segment. Include a quote from Richard. Target: UK lifestyle media.",
+  a1_li:"Write 3 LinkedIn posts for Richard Marriott. 1: Launch story. 2: Industry insight on 50+ male commercial modelling. 3: Portfolio showcase. Professional, engaging, with hashtags.",
+  a1_ig:"Write 5 Instagram captions for: 1) B&W walking pinstripe suit 2) Arms crossed suit 3) Character portrait 4) Nike active 5) Pink shirt London street. Authentic, confident, with hashtags.",
+  a1_plan:"Create a detailed 4-week PR action plan starting 17 May 2026. Agency follow-ups, casting outreach, social media, press pitching. Specific dates and actions.",
+  a2_new:"Find 8 UK modelling agencies for mature silver male models 50+ NOT yet contacted by Richard. Exclude: MOT, Grey, Ugly, Silverfox, Models of Diversity, Sandra Reynolds, Select, Models 1, AMCK. For each: name, email, why they suit Richard, plus personalised submission email.",
+  a2_cd:"Find 6 UK casting directors casting mature male 50+ for TV commercials not yet contacted. Exclude: Gail Stevens, Tree Petts, CDG, Quite Great. Name, company, email, personalised email for each.",
+  a2_brands:"Find 6 UK brands with in-house casting using 50+ male talent. Exclude Saga, M&S, Next, Specsavers. Brand, contact email, campaign type, personalised email for each.",
+  a2_intl:"Find 5 international agencies (Europe/USA) for mature silver male commercial models. Country, email, speciality, personalised submission email for each.",
+  a2_market:"UK mature male modelling market research: most in-demand brief types, top spending brands, day rates Richard should target, best platforms for active briefs. Be specific.",
+  a2_adagencies:"Find 5 UK ad agencies beyond Ogilvy/AMV/Grey using mature male talent. Contact email, recent campaigns with 50+ males, personalised email for each."
+};
+
+var queues={a1:[],a2:[]};
+var timers={};
+var apiKey='';
+
+// Check for stored key
+window.addEventListener('load',function(){
+  var k = sessionStorage.getItem('rm_api_key');
+  if(k){ apiKey=k; document.getElementById('setup').style.display='none'; }
+});
+
+function saveKey(){
+  var k = document.getElementById('key-input').value.trim();
+  if(!k || !k.startsWith('sk-ant')){ alert('Please enter a valid Anthropic API key (starts with sk-ant-)'); return; }
+  apiKey = k;
+  sessionStorage.setItem('rm_api_key', k);
+  document.getElementById('setup').style.display='none';
+}
+
+function changeKey(){
+  sessionStorage.removeItem('rm_api_key');
+  apiKey='';
+  document.getElementById('key-input').value='';
+  document.getElementById('setup').style.display='flex';
+}
+
+function log(id,msg,type){
+  var el=document.getElementById(id+'-log');
+  if(!el)return;
+  var cls=type==='err'?'log-err':'log-ok';
+  var t=new Date().toLocaleTimeString();
+  el.innerHTML='<span class="'+cls+'">'+t+' — '+msg+'</span><br>'+el.innerHTML;
+}
+
+function startLoad(id){
+  document.getElementById(id+'-load').classList.add('show');
+  document.getElementById(id+'-out').classList.remove('show');
+  document.getElementById(id+'-acts').classList.remove('show');
+  var d=0;
+  timers[id]=setInterval(function(){
+    d=(d+1)%4;
+    var e=document.getElementById(id+'-dots');
+    if(e)e.textContent=(id==='a1'?'Agent thinking':'Agent searching')+'.'.repeat(d);
+  },400);
+}
+
+function stopLoad(id){clearInterval(timers[id]);document.getElementById(id+'-load').classList.remove('show');}
+
+function showOut(id,text){
+  stopLoad(id);
+  document.getElementById(id+'-out').textContent=text;
+  document.getElementById(id+'-out').classList.add('show');
+  document.getElementById(id+'-acts').classList.add('show');
+  parseAndQueue(id,text);
+}
+
+function parseAndQueue(id,text){
+  var parts=text.split('---EMAIL---');
+  var emails=[];
+  parts.forEach(function(p){
+    var toM=p.match(/TO:\s*([^\n]+)/i);
+    var subM=p.match(/SUBJECT:\s*([^\n]+)/i);
+    var bodyM=p.match(/BODY:\s*([\s\S]+?)(?=\n---EMAIL---|$)/i);
+    if(toM&&subM){
+      emails.push({
+        to:toM[1].trim(),
+        subject:subM[1].trim(),
+        body:bodyM?bodyM[1].trim():p.replace(/TO:[^\n]+\n?/i,'').replace(/SUBJECT:[^\n]+\n?/i,'').trim(),
+        sent:false
+      });
+    }
+  });
+  if(emails.length){
+    queues[id]=queues[id].concat(emails);
+    renderQ(id);
+    log(id,emails.length+' email(s) ready');
+  }
+}
+
+function gmailLink(e){
+  var p=new URLSearchParams({view:'cm',fs:'1',to:e.to,su:e.subject,body:e.body});
+  return 'https://mail.google.com/mail/u/0/?'+p.toString();
+}
+
+function renderQ(id){
+  var c=document.getElementById(id+'-eq');
+  if(!queues[id].length){c.innerHTML='<div class="eq-empty">No emails queued</div>';return;}
+  c.innerHTML=queues[id].map(function(e,i){
+    var cls=e.sent?'sent':'';
+    var link=gmailLink(e);
+    return '<div class="eitem"><div class="einfo"><div class="eto">'+e.to+'</div><div class="esub">'+e.subject+'</div></div>'+
+      '<a href="'+link+'" target="_blank" class="egmail '+cls+'" onclick="markSent(\''+id+'\','+i+')">'+(e.sent?'SENT ✓':'OPEN GMAIL')+'</a></div>';
+  }).join('');
+}
+
+function markSent(id,i){
+  if(queues[id][i])queues[id][i].sent=true;
+  setTimeout(function(){renderQ(id);},300);
+}
+
+function gmailAll(id){
+  queues[id].forEach(function(e,i){
+    if(!e.sent){window.open(gmailLink(e),'_blank');queues[id][i].sent=true;}
+  });
+  renderQ(id);
+  log(id,'Opened all in Gmail');
+}
+
+function copyOut(id){navigator.clipboard.writeText(document.getElementById(id+'-out').textContent);log(id,'Copied to clipboard');}
+function clearA(id){document.getElementById(id+'-out').classList.remove('show');document.getElementById(id+'-acts').classList.remove('show');queues[id]=[];renderQ(id);}
+
+async function run(id,prompt){
+  if(!apiKey){alert('Please enter your API key first.');document.getElementById('setup').style.display='flex';return;}
+  startLoad(id);log(id,'Running...');
+  try{
+    var res=await fetch('https://corsproxy.io/?https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-allow-browser':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:CONTEXT,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var data=await res.json();
+    if(data.error){stopLoad(id);log(id,'API error: '+data.error.message,'err');return;}
+    if(data.content&&data.content[0]){showOut(id,data.content[0].text);log(id,'Done ✅');}
+    else{stopLoad(id);log(id,'No content returned','err');}
+  }catch(e){stopLoad(id);log(id,'Error: '+e.message,'err');}
+}
+
+function runCustom(id){var p=document.getElementById(id+'-in').value.trim();if(p)run(id,p);}
+</script>
+</body>
+</html>
